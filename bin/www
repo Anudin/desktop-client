@@ -32,7 +32,7 @@ server.on('listening', onListening);
 
 const responder = ciao.getResponder();
 const service = responder.createService({
-    name: 'com external desktop',
+    name: 'com example desktop',
     type: 'http',
     port: 3000
 })
