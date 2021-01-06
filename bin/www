@@ -13,7 +13,9 @@ const ciao = require("@homebridge/ciao");
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+// FIXME Change port number!
+const staticPort = 3000;
+var port = normalizePort(process.env.PORT || staticPort.toString());
 app.set('port', port);
 
 /**
@@ -34,7 +36,7 @@ const responder = ciao.getResponder();
 const service = responder.createService({
     name: 'com example desktop',
     type: 'http',
-    port: 3000
+    port: staticPort
 })
 service.advertise().then(() => {
     console.log("Service is published :)");
