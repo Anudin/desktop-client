@@ -12,6 +12,10 @@
     "morgan": "~1.9.1",
     "@homebridge/ciao": "~1.1.2",
     "which": "~2.0.2",
-    "lodash": "~4.17.20"
+    "lodash": "~4.17.20",
+    "axios": "~0.21.1",
+    "content-type": "~1.0.4",
+    "mime": "~2.4.7",
+    "file-url": "~3.0.0"
   }
 }
