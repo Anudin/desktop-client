@@ -1,13 +1,14 @@
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
+const path = require('path')
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = 'token.json';
+const TOKEN_PATH = path.resolve(process.cwd(), 'token.json');
 
 function getFile(fileId) {
     return new Promise(function (resolve, reject) {
