@@ -9,8 +9,21 @@ const fs = require('fs')
 const path = require('path')
 const fileUrl = require('file-url');
 
-// Position for HTML5 video & audio: #t=
-// Position for PDF: #page=
+// See https://caniuse.com/audio
+const supportedAudioFormats = [
+    'audio/wav',
+    'audio/mpeg',
+    'audio/ogg',
+    'audio/opus',
+    'audio/flac',
+];
+
+// See https://caniuse.com/video
+const supportedVideoFormats = [
+    'video/webm',
+    'video/mpeg',
+    'video/ogg'
+];
 
 const availableBrowsers = getAvailableBrowsers();
 if (_.isEmpty(availableBrowsers)) {
@@ -25,50 +38,57 @@ router.post('/open', async (req, res) => {
     res.status(200).send();
 });
 
-// Check content-type with HTTP HEAD request
-// Download & display via file:// URL
-// Simply open text/html or unknown content-types
 async function resolveTargetToURL(target) {
-    // YouTube link
+    // Edge cases, there's no (official) way to obtain a direct download link
     if (target.URL.match(/^(http[s]?:\/\/)?(www\.)?youtube\.com/)) {
         return `${target.URL}&t=${target.position}`;
     }
-    // Google Drive (sharing) link
-    else if (target.URL.match(/^(http[s]?:\/\/)?(www\.)?drive.google.com\/file\/d\//)) {
+
+    let url = target.URL;
+    let mimeType = '';
+    // A direct download link as well as the applying MIME-type is either directly available or available through an API call
+    if (target.URL.match(/^(http[s]?:\/\/)?(www\.)?drive.google.com\/file\/d\//)) {
         // TODO Get webContentLink, mimeType via Google Drive API
         // https://drive.google.com/file/d/1sn3Ajj7pY26XKOrSpnDQvK0N5TqF8yMo/view?usp=sharing - public
         // https://drive.google.com/file/d/1Tx8iULXcrjejgKluKukE4AdS3Eoe8uNT/view?usp=sharing - restricted
     } else {
-        // FIXME Error handling
-        const contentType = await getContentType(target.URL);
-        if (contentType === 'application/pdf') {
-            const filePath = path.resolve(process.cwd(), 'cache', `file.${mime.getExtension(contentType)}`);
-            return axios({
-                method: 'get',
-                url: target.URL,
-                responseType: 'stream'
-            }).then((res) => {
-                const file = fs.createWriteStream(filePath);
-                res.data.pipe(file);
-                return new Promise((resolve, reject) => {
-                    file.on("finish", () => {
-                        // FIXME Missing position is currently passed as empty string
-                        resolve(fileUrl(filePath) + ('position' in target ? `#page=${target.position}` : ''));
-                    });
-                    file.on("error", reject);
-                });
-            });
-        } else {
-            return target.URL + ('position' in target ? target.position : '');
-        }
+        // TODO Handle failing HEAD request
+        mimeType = await getContentType(target.URL);
+    }
+
+    if (mimeType === 'application/pdf') {
+        return url + (target.position !== '' ? `#page=${target.position}` : '');
+    } else if (supportedAudioFormats.includes(mimeType) || supportedVideoFormats.includes(mimeType)) {
+        return url + (target.position !== '' ? `#t=${target.position}` : '');
+    } else {
+        return url + (target.position !== '' ? target.position : '');
     }
 }
 
-// FIXME Handle HTTP error 405
 async function getContentType(url) {
-    const res = await axios.head(url);
-    return contentType.parse(res).type;
+    const res = await axios.head(url).catch((e) => null);
+    return res !== null ? contentType.parse(res).type : '';
 }
+
+// Don't use, misses error handling, may leak resources, see
+// https://stackoverflow.com/questions/11944932/how-to-download-a-file-with-node-js-without-using-third-party-libraries
+// async function download(url) {
+//     const filePath = path.resolve(process.cwd(), 'cache', `file.${mime.getExtension(contentType)}`);
+//     return axios({
+//         method: 'get',
+//         url: url,
+//         responseType: 'stream'
+//     }).then((res) => {
+//         const file = fs.createWriteStream(filePath);
+//         res.data.pipe(file);
+//         return new Promise((resolve, reject) => {
+//             file.on("finish", () => {
+//                 resolve(true);
+//             });
+//             file.on("error", reject);
+//         });
+//     });
+// }
 
 module.exports = router;
 
@@ -76,7 +96,7 @@ function getAvailableBrowsers() {
     const which = require('which');
 
     const commands = ['google-chrome', 'chrome', 'firefox'];
-    var available = {};
+    let available = {};
     for (const command of commands) {
         const path = which.sync(command, {nothrow: true});
         available = Object.assign(available, path && {[command]: path});
