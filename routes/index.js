@@ -8,6 +8,7 @@ const mime = require('mime');
 const fs = require('fs')
 const path = require('path')
 const fileUrl = require('file-url');
+const gdrive = require('../api/drive');
 
 // See https://caniuse.com/audio
 const supportedAudioFormats = [
@@ -48,9 +49,16 @@ async function resolveTargetToURL(target) {
     let mimeType = '';
     // A direct download link as well as the applying MIME-type is either directly available or available through an API call
     if (target.URL.match(/^(http[s]?:\/\/)?(www\.)?drive.google.com\/file\/d\//)) {
-        // TODO Get webContentLink, mimeType via Google Drive API
         // https://drive.google.com/file/d/1sn3Ajj7pY26XKOrSpnDQvK0N5TqF8yMo/view?usp=sharing - public
         // https://drive.google.com/file/d/1Tx8iULXcrjejgKluKukE4AdS3Eoe8uNT/view?usp=sharing - restricted
+        // TODO Extract fileId from sharing link
+        const fileId = '1sn3Ajj7pY26XKOrSpnDQvK0N5TqF8yMo';
+        const data = await gdrive(fileId).catch((err) => null);
+        if (data) {
+            // TODO Remove &export=download from end of link
+            url = data.webContentLink;
+            mimeType = data.mimeType;
+        }
     } else {
         // TODO Handle failing HEAD request
         mimeType = await getContentType(target.URL);
