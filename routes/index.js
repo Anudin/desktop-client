@@ -59,6 +59,7 @@ async function resolveTargetToURL(target) {
         if (response) {
             url = response.webContentLink;
             mimeType = response.mimeType;
+            console.log(`Drive API call returned ${JSON.stringify(response, null, 2)}`);
 
             const exportParam = '&export=download';
             if (_.endsWith(url, exportParam)) url = url.substr(0, url.length - exportParam.length);
@@ -70,6 +71,8 @@ async function resolveTargetToURL(target) {
 
     if (mimeType === 'application/pdf') {
         return url + (target.position !== '' ? `#page=${target.position}` : '');
+    } else if (_.startsWith(mimeType, 'image/')) {
+        return url;
     } else if (supportedAudioFormats.includes(mimeType) || supportedVideoFormats.includes(mimeType)) {
         return url + (target.position !== '' ? `#t=${target.position}` : '');
     } else {
