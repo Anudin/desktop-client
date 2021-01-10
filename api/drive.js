@@ -15,7 +15,7 @@ const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 function getFile(fileId) {
     return new Promise(function (resolve, reject) {
         // Load client secrets from a local file.
-        fs.readFile('credentials.json', (err, content) => {
+        fs.readFile(path.join(__dirname, '../credentials.json'), (err, content) => {
             if (err) return reject('Error loading client secret file:');
             // Authorize a client with credentials, then call the Google Drive API.
             authorize(JSON.parse(content), async (auth) => {

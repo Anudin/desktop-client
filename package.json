@@ -18,5 +18,8 @@
     "mime": "~2.4.7",
     "morgan": "~1.9.1",
     "which": "~2.0.2"
+  },
+  "bin": {
+    "desktop": "./bin/www"
   }
 }

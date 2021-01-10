@@ -55,7 +55,7 @@ async function resolveTargetToURL(target) {
         // https://drive.google.com/file/d/1Tx8iULXcrjejgKluKukE4AdS3Eoe8uNT/view?usp=sharing - restricted
         console.log(`Google Drive sharing link detected, resolving via Drive API...`);
         const fileId = target.URL.match(/^(?:http[s]?:\/\/)?(?:www\.)?drive.google.com\/file\/d\/(.*?)\//)[1];
-        const response = await gdrive(fileId).catch((err) => console.log(`Drive API call failed`));
+        const response = await gdrive(fileId).catch((err) => console.log(`Drive API call failed ${err}`));
         if (response) {
             url = response.webContentLink;
             mimeType = response.mimeType;
