@@ -13,8 +13,7 @@ const ciao = require("@homebridge/ciao");
  * Get port from environment and store in Express.
  */
 
-// FIXME Change port number!
-const staticPort = 3000;
+const staticPort = 34501;
 var port = normalizePort(process.env.PORT || staticPort.toString());
 app.set('port', port);
 

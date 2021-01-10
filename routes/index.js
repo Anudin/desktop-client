@@ -34,7 +34,6 @@ if (_.isEmpty(availableBrowsers)) {
 const browser = Object.keys(availableBrowsers)[0];
 
 router.post('/open', async (req, res) => {
-    // TODO Differences in argument passing between operating systems?
     spawn(browser, [await resolveTargetToURL(req.body)]);
     res.status(200).send();
 });

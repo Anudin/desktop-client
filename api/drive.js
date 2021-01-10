@@ -34,7 +34,7 @@ async function getFileRequest(auth, fileId) {
         });
         return res.data;
     } catch (err) {
-        console.log('The API returned an error: ');
+        console.log(`The API returned an error ${err}`);
     }
 }
 
