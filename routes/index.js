@@ -40,6 +40,7 @@ router.post('/open', async (req, res) => {
 });
 
 async function resolveTargetToURL(target) {
+    console.log(`Resolving URL ${target.URL}`);
     // Edge cases, there's no (official) way to obtain a direct download link
     if (target.URL.match(/^(http[s]?:\/\/)?(www\.)?youtube\.com/)) {
         return `${target.URL}&t=${target.position}`;
@@ -52,8 +53,9 @@ async function resolveTargetToURL(target) {
     if (target.URL.match(/^(http[s]?:\/\/)?(www\.)?drive.google.com\/file\/d\//)) {
         // https://drive.google.com/file/d/1sn3Ajj7pY26XKOrSpnDQvK0N5TqF8yMo/view?usp=sharing - public
         // https://drive.google.com/file/d/1Tx8iULXcrjejgKluKukE4AdS3Eoe8uNT/view?usp=sharing - restricted
+        console.log(`Google Drive sharing link detected, resolving via Drive API...`);
         const fileId = target.URL.match(/^(?:http[s]?:\/\/)?(?:www\.)?drive.google.com\/file\/d\/(.*?)\//)[1];
-        const response = await gdrive(fileId).catch((err) => null);
+        const response = await gdrive(fileId).catch((err) => console.log(`Drive API call failed`));
         if (response) {
             url = response.webContentLink;
             mimeType = response.mimeType;
