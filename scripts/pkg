@@ -1,3 +1,3 @@
 #!/bin/env bash
-pkg ../bin/www -t latest-windows-x64 -o ../dist/desktop
-pkg ../bin/www -t latest-linux-x64 -o ../dist/desktop
+pkg ../package.json -t latest-windows-x64 -o ../dist/desktop
+pkg ../package.json -t latest-linux-x64 -o ../dist/desktop
