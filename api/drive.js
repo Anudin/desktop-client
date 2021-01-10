@@ -3,12 +3,14 @@ const readline = require('readline');
 const {google} = require('googleapis');
 const path = require('path')
 
+// Code adapted from the Node.js Quicktart section of the Google Drive API
+
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = path.resolve(process.cwd(), 'token.json');
+const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 
 function getFile(fileId) {
     return new Promise(function (resolve, reject) {
@@ -23,17 +25,17 @@ function getFile(fileId) {
     });
 }
 
-function getFileRequest(auth, fileId) {
-    return new Promise(function (resolve, reject) {
-        const drive = google.drive({version: 'v3', auth});
-        drive.files.get({
+async function getFileRequest(auth, fileId) {
+    const drive = google.drive({version: 'v3', auth});
+    try {
+        const res = await drive.files.get({
             fileId: fileId,
             fields: 'webContentLink, mimeType',
-        }, (err, res) => {
-            if (err) return reject('The API returned an error: ');
-            return resolve(res.data);
         });
-    });
+        return res.data;
+    } catch (err) {
+        console.log('The API returned an error: ');
+    }
 }
 
 /**
@@ -43,7 +45,7 @@ function getFileRequest(auth, fileId) {
  * @param {function} callback The callback to call with the authorized client.
  */
 function authorize(credentials, callback) {
-    const {client_secret, client_id, redirect_uris} = credentials.web;
+    const {client_secret, client_id, redirect_uris} = credentials.installed;
     const oAuth2Client = new google.auth.OAuth2(
         client_id, client_secret, redirect_uris[0]);
 
