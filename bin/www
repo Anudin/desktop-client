@@ -46,12 +46,13 @@ process.on('SIGINT', shutdown);
 
 async function shutdown() {
     console.log('Shutting down...');
-    console.log('Shutting down multicast dns responder...');
+    console.log('Shutting down m-dns responder...');
     // I'm not sure if this call if necessary when shutdown() is called next, but just to be safe...
     await announcedService.destroy();
     await mdnsResponder.shutdown();
     console.log('Shutting down http server...');
     server.close();
+    console.log('Done.');
 }
 
 /**

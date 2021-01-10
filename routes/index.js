@@ -48,7 +48,6 @@ async function resolveTargetToURL(target) {
     let url = target.URL;
     let mimeType = '';
     // A direct download link as well as the applying MIME-type is either directly available or available through an API call
-    // TODO Doesn't respect https://docs.google.com/spreadsheets
     if (target.URL.match(/^(http[s]?:\/\/)?(www\.)?drive.google.com\/file\/d\//)) {
         // https://drive.google.com/file/d/1sn3Ajj7pY26XKOrSpnDQvK0N5TqF8yMo/view?usp=sharing - public
         // https://drive.google.com/file/d/1Tx8iULXcrjejgKluKukE4AdS3Eoe8uNT/view?usp=sharing - restricted
@@ -64,7 +63,6 @@ async function resolveTargetToURL(target) {
             if (_.endsWith(url, exportParam)) url = url.substr(0, url.length - exportParam.length);
         }
     } else {
-        // TODO Handle failing HEAD request
         mimeType = await getContentType(target.URL);
     }
 
