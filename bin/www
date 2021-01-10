@@ -31,27 +31,27 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-const responder = ciao.getResponder();
-const service = responder.createService({
+const mdnsResponder = ciao.getResponder();
+const announcedService = mdnsResponder.createService({
     name: 'com example desktop',
     type: 'http',
-    port: staticPort
+    port: port
 })
-service.advertise().then(() => {
+announcedService.advertise().then(() => {
     console.log("Service is published :)");
 });
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
-// FIXME Process isn't stopping properly
-function shutdown() {
-    console.log('Closing HTTP server');
-    service.destroy().then(() => {
-        server.close(() => {
-            console.log('HTTP server closed');
-        })
-    });
+async function shutdown() {
+    console.log('Shutting down...');
+    console.log('Shutting down multicast dns responder...');
+    // I'm not sure if this call if necessary when shutdown() is called next, but just to be safe...
+    await announcedService.destroy();
+    await mdnsResponder.shutdown();
+    console.log('Shutting down http server...');
+    server.close();
 }
 
 /**
